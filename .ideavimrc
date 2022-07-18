@@ -1,1 +1,107 @@
-/home/bitcero/.ideavimrc
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Edit &  General Actions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let mapleader=";"
+
+set clipboard+=unnamed
+set ideajoin
+
+" Highlight search results
+set hlsearch
+" Incremental search
+set incsearch
+" Ignore case when searching
+set ignorecase
+" When searching try to be smart about cases
+set smartcase
+" Emulates Vim-Sourround
+set surround
+
+" Scroll Options
+set scrolloff=5       " don't scroll any closer to top/bottom
+set sidescrolloff=5   " don't scroll any closer to left/right
+set scrolljump=5      " Scroll 5 lines if cursor get closer to top or down
+
+" Join lines
+noremap J :action EditorJoinLines<CR>
+
+" Undo
+noremap u :action $Undo<CR>zz
+
+" Rename element
+nmap <leader>re :action RenameElement<CR>
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Movements
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Movement With Cursor in Place
+noremap <A-S-j> :action  Editor
+"noremap <A-S-k> gk<C-y>
+
+" Navigation in Methods
+noremap <C-k> :action MethodUp<CR>
+noremap <C-j> :action MethodDown <CR>
+
+noremap <A-h> :action PreviousTab<CR>
+noremap <A-l> :action NextTab<CR>
+
+
+" Error Navigation
+nnoremap <leader>e :action GotoNextError<CR>
+nnoremap <leader>E :action GotoPreviousError<CR>
+
+" Center on scroll
+nnoremap <C-u> <C-u>zz
+nnoremap <C-d> <C-d>zz
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tweaks - Search
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"Using IDEA search
+nnoremap / :action Find<CR>
+nnoremap n :action FindNext<CR>
+nnoremap <S-n> :action FindPrevious<CR>
+nnoremap * :action FindWordAtCaret<CR>
+noremap % :action EditorMatchBrace<CR>
+
+" Find in path
+nmap <Leader>f :action FindInPath<CR>
+
+" Search code references
+nmap <leader>d :action GotoDeclaration<CR>
+nmap <leader>i :action GotoImplementation<CR>
+nmap <leader>u :action FindUsages<CR>
+
+
+" Easier copy/paste
+map <leader>v "*p
+map <leader>c "*y
+
+" Close file
+nnoremap <leader>q :action CloseContent<CR>
+
+" Open Terminal
+nmap <leader>t :action ActivateTerminalToolWindow<CR>
+
+" Nerd Tree behaviour
+set NERDTree
+set g:NERDTreeMapActivateNode='l'
+set g:NERDTreeMapJumpParent='h'
+
+sethandler <C-C> a:ide
+sethandler <C-D> a:vim
+sethandler <C-F> a:vim
+sethandler <C-H> a:vim
+sethandler <C-J> a:vim
+sethandler <A-S-J> a:vim
+sethandler <C-K> a:vim
+sethandler <C-L> a:vim
+sethandler <C-O> a:vim
+sethandler <C-R> a:vim
+sethandler <C-U> a:vim
+sethandler <C-V> a:vim
+sethandler <C-W> a:vim
+sethandler <C-[> a:vim
+sethandler <C-]> a:vim
