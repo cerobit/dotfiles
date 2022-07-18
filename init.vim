@@ -1,0 +1,1 @@
+/home/bitcero/.config/nvim/init.vim
