@@ -87,8 +87,6 @@ nmap <leader>t :action ActivateTerminalToolWindow<CR>
 
 " Nerd Tree behaviour
 set NERDTree
-set g:NERDTreeMapActivateNode='l'
-set g:NERDTreeMapJumpParent='h'
 
 sethandler <C-C> a:ide
 sethandler <C-D> a:vim
