@@ -1,45 +1,77 @@
-set nocompatible              " be iMproved, required
 filetype off                  " required
+set nocompatible              " be iMproved, required
 
 " VimPlug
 call plug#begin('~/.vim/plugged')
 
-Plug 'maralla/completor.vim'
 
 Plug 'SirVer/ultisnips'
 Plug 'sniphpets/sniphpets'
 
 " Syntax
-Plug 'scrooloose/syntastic'
 Plug 'elzr/vim-json'
 Plug 'Yggdroot/indentLine' " Vertical line indicator for blocks
-Plug 'JulesWang/css.vim'
-Plug 'hail2u/vim-css3-syntax'
 Plug 'tpope/vim-commentary'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " Beter sintax :TSinstall vim or go .. etc
+                                                             " TSUpdate,  TSEnable highlight ... other options
+
+Plug 'neovim/nvim-lspconfig'
+Plug 'ray-x/go.nvim'
+Plug 'ray-x/guihua.lua' " recommended if need floating window support
 
 " Git
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 
+" Telescope
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
+Plug 'nvim-tree/nvim-web-devicons'
+
+
 " Files - Utilities
 Plug 'scrooloose/nerdtree'
-Plug 'Shougo/unite.vim'       " Fuzzy file complettion
-Plug 'Shougo/neomru.vim'      " Source recent files
-Plug 'Shougo/neco-vim'        " Source neocomplete
 Plug 'Shougo/echodoc.vim'     " Extra information display in echo area
 Plug 'unblevable/quick-scope' " Fast jump Left Right marks
 Plug 'tpope/vim-surround'
 Plug 'sjl/gundo.vim'
 Plug 'gcmt/breeze.vim'        " Easy html tag, attribute navigation
-Plug 'jiangmiao/auto-pairs'
 Plug 'bling/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
 " Color Schemas & Icons
-Plug 'kaicataldo/material.vim'
-Plug 'atelierbram/vim-colors_duotones'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 call plug#end()
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+" Font
+""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Set Editor Font
+if exists(':GuiFont')
+    " Use GuiFont! to ignore font errors
+    GuiFont Hack:h12
+endif
+
+
+if has('gui_running')
+
+    if exists('$WAYLAND_DISPLAY')
+        set guifont=Hack:h14
+        "set guifont=Inconsolata-g\ for\ Powerline\ 10
+        "set guifont=Fira\ Code\ Retina\ 14
+    elseif has("gui_macvim")
+        set guifont=Menlo\ Regular:h10
+    elseif has("gui_win32") " Windows specific options 
+        set guifont=Consolas:h12
+        au GUIEnter * simalt ~x
+    endif
+    autocmd GUIEnter * set vb t_vb=
+elseif $TERM == "xterm-256color"
+    set t_Co=256
+endif
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
@@ -48,28 +80,24 @@ call plug#end()
 
 augroup autoReloadVimConfig
     au!
-    autocmd bufwritepost vimrc source ~/.vim/vimrc
+    autocmd bufwritepost init.vim source ~/.config/nvim/init.vim
 augroup END
 
-if has('gui_running')
-     "exec('set guioptions=egmrti')
-    if has("x11")
-        if ( &guifont !="Fira\ Code\ Retina" )
-           set guifont=Hack\ Regular\ 12
-        endif
-        "set guifont=Inconsolata-g\ for\ Powerline\ 10
-        "set guifont=Fira\ Code\ Retina\ 14
-        "set guifont=Hack-Regular\ 10
-        let g:airline_powerline_fonts = 1
-    elseif has("gui_macvim")
-        set guifont=Menlo\ Regular:h14
-    elseif has("gui_win32") " Windows specific options 
-        set guifont=Consolas:h12
-        au GUIEnter * simalt ~x
-    endif
-    autocmd GUIEnter * set vb t_vb=
-elseif $TERM == "xterm-256color"
-    set t_Co=256
+
+" Disable GUI Tabline
+if exists(':GuiTabline')
+    GuiTabline 0
+endif
+
+" Right Click Context Menu (Copy-Cut-Paste)
+nnoremap <silent><RightMouse> :call GuiShowContextMenu()<CR>
+inoremap <silent><RightMouse> <Esc>:call GuiShowContextMenu()<CR>
+xnoremap <silent><RightMouse> :call GuiShowContextMenu()<CR>gv
+snoremap <silent><RightMouse> <C-G>:call GuiShowContextMenu()<CR>gv
+
+" Enable GUI ScrollBar
+if exists(':GuiScrollBar')
+    GuiScrollBar 1
 endif
 
 " Set utf8 as standard encoding and en_US as the standard language
@@ -105,8 +133,6 @@ set background=dark                          " We are dark people...
 let g:gundo_prefer_python3 = 1
 
 
-
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Color Scheme
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -119,19 +145,11 @@ if (has("termguicolors"))
   set termguicolors
 endif
 
-"let g:material_theme_style = 'default' | 'palenight' | 'dark'
-let g:material_theme_style = 'palenight'
-let g:airline_theme = 'material'
 set background=dark
-colorscheme material
+colorscheme  catppuccin_mocha
+let g:lightline = {'colorscheme': 'catppuccin_mocha'}
+let g:airline_theme = 'catppuccin_macchiato'
 
-" In many terminal emulators the mouse works just fine, thus enable it.
-if v:version >= 702 && has('mouse')
-  set mouse=a
-  if &term =~ "xterm" || &term =~ "screen"
-    set ttymouse=xterm2
-  endif
-endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Re-Maps
@@ -207,17 +225,6 @@ nmap <leader>A <Plug>(breeze-jump-attribute-backward)
 au FileType html,twig nmap <TAB> <Plug>(breeze-next-tag)
 au FileType html,twig nmap <S-TAB> <Plug>(breeze-prev-tag)
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Syntastic
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:syntastic_php_checkers=['php' ]       " Syntastics array options ejem chain of php phpcs phpms
-                                            " phpcs and phpms must be installed
-let g:syntastic_html_tidy_exec = 'tidy'
-
-let g:syntastic_javascript_checkers=['jshint'] 
-
-let g:syntastic_stl_format = '[%E{Err: %fe #%e}%B{, }%W{Warn: %fw #%w}]' " Syntastical statusline format
-                                                                         "Ignored when powerline is enabled.
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Airline
@@ -238,94 +245,94 @@ let g:echodoc_enable_at_startup = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "let g:indentLine_color_tty_light = 7 " (default: 4)
 let g:indentLine_color_dark = 1 " (default: 2)
-"let g:indentLine_char = '┊'
+let g:indentLine_char = '┊'
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Unite
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Root helper using NERDTree
 autocmd BufEnter * if &ft !~ '^nerdtree$' | silent! lcd %:p:h | endif
 
 "<C-l>  Clear cache
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Telescope config
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Recent
+nnoremap <silent><leader>f :Telescope find_files<cr>
 " Recent Buffers
-nnoremap <silent><leader>s :Unite -toggle -auto-resize -buffer-name=file neomru/file buffer<cr>
+nnoremap <silent><leader>s :Telescope oldfiles<cr>
 " Buffers on Project dir Recursive
-nnoremap <silent><leader>f :Unite -toggle -auto-resize -buffer-name=file file_rec:!<cr>
-" Buffers on pwd()
-nnoremap <silent><leader>d :Unite -toggle -auto-resize file<cr>
-" Search multiline on buffer
-nnoremap <silent><leader>l :Unite -toggle -auto-resize line<cr>
+nnoremap <silent><leader>b :Telescope buffers<cr>
 " Tags Buffer
-nnoremap <silent><leader>t :Unite -toggle -auto-resize tag:%<cr>
-" Reset not it is <C-l> normally
-nnoremap <leader>r <Plug>(unite_restart)
-
-call unite#custom#profile('default', 'context', {
-\   'direction': 'botright',
-\   'start_insert': 1,
-\   'prompt': '» ',
-\   'candidate-icon': '-',
-\   'marked-icon': '+',
-\   'winheight': 20
-\ })
-
-let g:unite_data_directory='~/.vim/unite'
-let g:unite_enable_short_source_names = 1
-
-"Fuzzy search
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-
-function! s:unite_settings()
-    nmap <buffer> Q <plug>(unite_exit)
-    nmap <buffer> <esc> <plug>(unite_exit)
-    imap <buffer> <esc> <plug>(unite_exit)
-    nmap <buffer> <C-p> <Plug>(unite_toggle_auto_preview)
-endfunction
-autocmd FileType unite call s:unite_settings()
-
-let s:unite_ignores = [
-  \ '\.git', 'deploy', 'dist','\.phpcd',
-  \ 'undo', 'tmp', 'backups','vendor',
-  \ 'generated', 'build', 'images']
-
-set wildignore+=*/tmp/*,*.so,*~,*.zip,
-            \*/.git/*,*/.svn/*,*/.phpcd/*,
-            \*/vendor/*,node_modules,
-            \*/var/*,*/cache/*,*/logs/*,
-            \*/.DS_Store,coverage,
-            \*/*bundle.js,*.map
-
-
-call unite#custom#source(
-  \  'file_rec,file_mru,file,buffer,grep',
-  \  'ignore_globs',
-  \  split(&wildignore, ",")
-  \ )
-
-let g:ackprg = 'ag --nogroup --nocolor --column'
-
+nnoremap <silent><leader>z :Telescope current_buffer_fuzzy_find<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tags and Omnicomplete configs
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
+" Enable plugins and load plugin for the detected file type.
+filetype plugin on
+" Enable Omnicomplete features
 set omnifunc=syntaxcomplete#Complete
-if has('autocmd')
-  augroup OmniCompleteModes
-    autocmd!
-    autocmd FileType python        nested setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType css           nested setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown nested setlocal omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType javascript    nested setlocal omnifunc=javascriptcomplete#CompleteJS
-    autocmd FileType xml           nested setlocal omnifunc=xmlcomplete#CompleteTags
-  augroup END
-endif
 
 
 "set complete=.,w,b,t,i,k
-set complete=.,t
 set completeopt=longest,menuone "like an editor
+
+"Set lsp for go
+autocmd FileType go  set omnifunc=v:lua.vim.lsp.omnifunc
+
+"Auto pop up on Any key or .
+function! OpenCompletion()
+    if !pumvisible() && ((v:char >= 'a' && v:char <= 'z') || (v:char >= 'A' && v:char <= 'Z' || v:char =='.'))
+        call feedkeys("\<C-x>\<C-o>", "n")
+    endif
+endfunction
+autocmd InsertCharPre * call OpenCompletion()
+
+" Lua code to start gopls completor  requires -->  go install golang.org/x/tools/gopls@latest
+" https://dx13.co.uk/articles/2023/04/24/neovim-lsp-without-plugins/
+" lsp has many functios for example when workin you can :lua vim.lsp.buf.hover()
+" 
+lua << EOF
+local autocmd = vim.api.nvim_create_autocmd
+autocmd("FileType", {
+    pattern = "go",
+    callback = function()
+        local root_dir = vim.fs.dirname(
+            vim.fs.find({ 'go.mod', 'go.work', '.git' }, { upward = true })[1]
+        )
+        local client = vim.lsp.start({
+            name = 'gopls',
+            cmd = { 'gopls' },
+            root_dir = root_dir,
+        })
+        vim.lsp.buf_attach_client(0, client)
+    end
+})
+EOF
+
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
+
+
+"if has('autocmd')
+"  augroup OmniCompleteModes
+"    autocmd!
+"    autocmd FileType python        nested setlocal omnifunc=pythoncomplete#Complete
+"    autocmd FileType css           nested setlocal omnifunc=csscomplete#CompleteCSS
+"    autocmd FileType html,markdown nested setlocal omnifunc=htmlcomplete#CompleteTags
+"    autocmd FileType javascript    nested setlocal omnifunc=javascriptcomplete#CompleteJS
+"    autocmd FileType xml           nested setlocal omnifunc=xmlcomplete#CompleteTags
+"endif
+"  augroup END
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -334,10 +341,13 @@ set completeopt=longest,menuone "like an editor
 
 " Folders with Snippets
 let g:UltiSnipsSnippetDirectories=["UltiSnips", "bit-snippets"]
-let g:completor_php_omni_trigger = '([$\w]+|use\s*|->[$\w]*|::[$\w]*|implements\s*|extends\s*|class\s+[$\w]+|new\s*)$'
 
-let g:UltiSnipsJumpForwardTrigger="<C-J>"
-let g:UltiSnipsJumpBackwardTrigger="<C-K>"
+"let g:UltiSnipsJumpForwardTrigger="<C-J>"
+"let g:UltiSnipsJumpBackwardTrigger="<C-K>"
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" LSP with go.nvim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -366,18 +376,24 @@ set wrap                        "Wrap lines
 command! -range=% -nargs=0 Tab2Space execute '<line1>,<line2>s#^\t\+#\=repeat(" ", len(submatch(0))*' . &ts . ')'
 command! -range=% -nargs=0 Space2Tab execute '<line1>,<line2>s#^\( \{'.&ts.'\}\)\+#\=repeat("\t", len(submatch(0))/' . &ts . ')'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Auto-Pairs
+" Auto Close Pairs no plugin
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:AutoPairsShortcutJump = '<C-j>'
-let g:AutoPairsShortcutToggle = '<C-k>'
-let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', '`':'`','%':'%'}
+inoremap ( ()<Esc>i
+inoremap { {}<Esc>i
+inoremap {<CR> {<CR>}<Esc>O
+inoremap [ []<Esc>i
+inoremap < <><Esc>i
+inoremap ' ''<Esc>i
+inoremap " ""<Esc>i
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " NERD Tree
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nmap <F2> :NERDTreeToggle<CR>
 "autocmd vimenter * if !argc() | NERDTree | endif        " Auto start with Vim
 let NERDTreeWinSize = 40
-let NERDTreeBookmarksFile = expand('~/.vim/NERDTreeBookmarks')
+let NERDTreeBookmarksFile = expand('~/.nvim/NERDTreeBookmarks')
 let NERDTreeShowBookmarks=1
 let NERDTreeQuitOnOpen=1
 let NERDTreeMouseMode=2
@@ -446,49 +462,49 @@ endfunction
 " Backups, undos, and swap files
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Save your backups to a less annoying place than the current directory.
-" If you have .vim-backup in the current directory, it'll use that.
-" Otherwise it saves it to ~/.vim/backup or . if all else fails.
-if isdirectory($HOME . '/.vim/backup') == 0
-  :silent !mkdir -p ~/.vim/backup >/dev/null 2>&1
+" If you have .nvim-backup in the current directory, it'll use that.
+" Otherwise it saves it to ~/.nvim/backup or . if all else fails.
+if isdirectory($HOME . '/.nvim/backup') == 0
+  :silent !mkdir -p ~/.nvim/backup >/dev/null 2>&1
 endif
 set backupdir-=.
 set backupdir+=.
 set backupdir-=~/
-set backupdir^=~/.vim/backup/
-set backupdir^=./.vim-backup/
+set backupdir^=~/.nvim/backup/
+set backupdir^=./.nvim-backup/
 set backup
 " Prevent backups from overwriting each other. The naming is weird,
 " since I'm using the 'backupext' variable to append the path.
-" So the file '/home/docwhat/.vimrc' becomes '.vimrc%home%docwhat~'
+" So the file '/home/docwhat/.nvimrc' becomes '.nvimrc%home%docwhat~'
 if has("autocmd")
   autocmd BufWritePre * let &backupext = substitute(expand('%:p:h'), '/', '%', 'g') . '~'
 endif
 
 
 " Save your swp files to a less annoying place than the current directory.
-" If you have .vim-swap in the current directory, it'll use that.
-" Otherwise it saves it to ~/.vim/swap, ~/tmp or .
-if isdirectory($HOME . '/.vim/swap') == 0
-  :silent !mkdir -p ~/.vim/swap >/dev/null 2>&1
+" If you have .nvim-swap in the current directory, it'll use that.
+" Otherwise it saves it to ~/.nvim/swap, ~/tmp or .
+if isdirectory($HOME . '/.nvim/swap') == 0
+  :silent !mkdir -p ~/.nvim/swap >/dev/null 2>&1
 endif
-set directory=./.vim-swap//
-set directory+=~/.vim/swap//
+set directory=./.nvim-swap//
+set directory+=~/.nvim/swap//
 set directory+=~/tmp//
 set directory+=.
 
 " viminfo stores the the state of your previous editing session
-set viminfo+=n~/.vim/viminfo
+set viminfo+=n~/.nvim/viminfo
 
 if exists("+undofile")
   " undofile - This allows you to use undos after exiting and restarting
-  " This, like swap and backups, uses .vim-undo first, then ~/.vim/undo
+  " This, like swap and backups, uses .nvim-undo first, then ~/.nvim/undo
   " :help undo-persistence
   " This is only present in 7.3+
-  if isdirectory($HOME . '/.vim/undo') == 0
-    :silent !mkdir -p ~/.vim/undo > /dev/null 2>&1
+  if isdirectory($HOME . '/.nvim/undo') == 0
+    :silent !mkdir -p ~/.nvim/undo > /dev/null 2>&1
   endif
-  set undodir=./.vim-undo//
-  set undodir+=~/.vim/undo//
+  set undodir=./.nvim-undo//
+  set undodir+=~/.nvim/undo//
   set undofile
   set undolevels=1000         " maximum number of changes that can be undone
   set undoreload=10000        " maximum number lines to save for undo on a buffer reload
@@ -496,7 +512,7 @@ endif
 
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid or when inside an event handler
-" (happens when dropping a file on gvim).
+" (happens when dropping a file on vim).
 " Also don't do it when the mark is in the first line, that is the default
 " position when opening a file.
 if has("autocmd")
